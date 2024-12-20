@@ -126,6 +126,12 @@ const Matching = () => {
           Instructions
         </Button>
       </section>
+      <section className="w-full lg:w-3/4 mb-4 text-center">
+        <p className="text-lg text-darkGray">
+        Parsed Questions: <strong>{questions.length}</strong>
+        </p>
+      </section>
+
 
       {/* Input Section */}
       <section className="w-full lg:w-3/4 mb-8 text-center">
