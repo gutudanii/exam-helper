@@ -9,6 +9,7 @@ import TrueFalse from './pages/TrueFalse';
 import ShortAnswer from './pages/ShortAnswer';
 import Matching from './pages/Matching';
 import Footer from './components/Footer';
+import Contact from './components/Contact';
 
 class App extends React.Component {
   constructor(props) {
@@ -39,6 +40,7 @@ class App extends React.Component {
             <Route path="/true-false" element={<TrueFalse />} />
             <Route path="/matching" element={<Matching />} />
             <Route path="/short-answer" element={<ShortAnswer />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
           <Footer />
         </div>

@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
+import NotificationCard from '../components/NotificationCard';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { ContentCopy as CopyIcon, Info as InfoIcon } from '@mui/icons-material';
 
 const TrueFalse = () => {
   const [inputText, setInputText] = useState('');
   const [questions, setQuestions] = useState([]);
   const [versions, setVersions] = useState(2); // Default: 2 versions
   const [output, setOutput] = useState([]);
+  const [notification, setNotification] = useState({ show: false, status: '', message: '' });
+  const [showInstructions, setShowInstructions] = useState(false);
+
+  // Trigger Notification
+  const triggerNotification = (status, message) => {
+    setNotification({ show: true, status, message });
+    setTimeout(() => {
+      setNotification({ show: false, status: '', message: '' });
+    }, 3000); // Auto-hide after 3 seconds
+  };
 
   // Helper function to shuffle an array
   const shuffleArray = (array) => {
@@ -50,22 +63,54 @@ const TrueFalse = () => {
   // Handle version generation
   const handleGenerate = () => {
     if (questions.length === 0) {
-      alert('Please input valid questions.');
+      triggerNotification('error', 'Please input valid questions.');
       return;
     }
     const generated = generateVersions(questions, versions);
     setOutput(generated);
+    triggerNotification('success', 'Exam versions generated successfully!');
   };
 
   // Copy version to clipboard
   const copyToClipboard = (index) => {
     const version = formatOutput(output[index]);
     navigator.clipboard.writeText(version);
-    alert(`Version ${index + 1} copied to clipboard!`);
+    triggerNotification('success', `Version ${index + 1} copied to clipboard!`);
+  };
+
+  // Open Instructions Popup
+  const openInstructions = () => {
+    setShowInstructions(true);
+  };
+
+  // Close Instructions Popup
+  const closeInstructions = () => {
+    setShowInstructions(false);
   };
 
   return (
     <main className="bg-gray-100 min-h-screen p-8 flex flex-col items-center">
+      {/* Notification Card */}
+      {notification.show && (
+        <NotificationCard
+          status={notification.status}
+          message={notification.message}
+          onClose={() => setNotification({ show: false, status: '', message: '' })}
+        />
+      )}
+
+      {/* Instructions Button */}
+      <section className="w-full lg:w-3/4 mb-8 text-right">
+        <Button
+          variant="outlined"
+          startIcon={<InfoIcon />}
+          onClick={openInstructions}
+          className="text-darkBlue"
+        >
+          Instructions
+        </Button>
+      </section>
+
       {/* Input Section */}
       <section className="w-full lg:w-3/4 mb-8 text-center">
         <h1 className="text-3xl font-bold text-darkBlue mb-4">True/False Generator</h1>
@@ -114,16 +159,38 @@ const TrueFalse = () => {
                 value={formatOutput(version)}
                 className="w-full h-40 p-2 border border-gray-300 rounded-lg focus:outline-none"
               />
-              <button
+              <Button
                 onClick={() => copyToClipboard(index)}
-                className="mt-4 px-6 py-2 bg-darkBlue text-white rounded-lg hover:bg-darkGreen"
+                variant="contained"
+                startIcon={<CopyIcon />}
+                className="mt-4 bg-darkBlue hover:bg-darkGreen text-white"
               >
-                Copy Version {index + 1}
-              </button>
+                Copy to Clipboard
+              </Button>
             </div>
           ))}
         </section>
       )}
+
+      {/* Instructions Popup */}
+      <Dialog open={showInstructions} onClose={closeInstructions}>
+        <DialogTitle>How to Use the True/False Generator</DialogTitle>
+        <DialogContent>
+          <ul className="list-disc pl-6">
+            <li>Input your True/False questions in the format:</li>
+            <pre className="bg-gray-100 p-2 rounded-md my-2">
+              1. The Earth is flat.{'\n'}2. Water boils at 100°C.
+            </pre>
+            <li>Select the number of versions you want to generate.</li>
+            <li>Click "Generate Versions" to create multiple shuffled versions.</li>
+          </ul>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeInstructions} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </main>
   );
 };

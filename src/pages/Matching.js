@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
-import imageInstruction from "./matching.png"
+import NotificationCard from '../components/NotificationCard';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { ContentCopy as CopyIcon, Info as InfoIcon } from '@mui/icons-material';
+import imageInstruction from '../assets/code.webp'; // Replace with your actual image path
 
 const Matching = () => {
   const [inputText, setInputText] = useState('');
   const [questions, setQuestions] = useState([]);
   const [versions, setVersions] = useState(2); // Default: 2 versions
   const [output, setOutput] = useState([]);
+  const [notification, setNotification] = useState({ show: false, status: '', message: '' });
+  const [showInstructions, setShowInstructions] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
 
+  // Trigger Notification
+  const triggerNotification = (status, message) => {
+    setNotification({ show: true, status, message });
+    setTimeout(() => {
+      setNotification({ show: false, status: '', message: '' });
+    }, 3000); // Auto-hide after 3 seconds
+  };
 
   // Helper function to shuffle an array
   const shuffleArray = (array) => {
@@ -18,7 +30,7 @@ const Matching = () => {
     return array;
   };
 
-  // Parse questions and answers from input
+  // Parse matching questions from input
   const parseMatching = (text) => {
     const lines = text.split('\n').map((line) => line.trim());
     const parsed = [];
@@ -30,14 +42,13 @@ const Matching = () => {
         const answer = match[2].trim();
         parsed.push({ question, answer });
       } else {
-        // If format is invalid, return an empty array
-        return [];
+        return []; // If format is invalid, return an empty array
       }
     }
     return parsed;
   };
 
-  // Generate exam versions
+  // Generate versions
   const generateVersions = (questions, count) => {
     const versions = [];
     for (let i = 0; i < count; i++) {
@@ -51,7 +62,7 @@ const Matching = () => {
     return versions;
   };
 
-  // Format output with renumbered questions and shuffled answers
+  // Format output
   const formatOutput = (version) => {
     const leftColumn = version.map((q, i) => `${i + 1}. ${q.question}`).join('\n');
     const rightColumn = version.map((q, i) => `${i + 1}. ${q.answer}`).join('\n');
@@ -61,35 +72,61 @@ const Matching = () => {
   // Handle input change
   const handleInputChange = (e) => {
     setInputText(e.target.value);
-    const parsed = parseMatching(e.target.value);
-    if (parsed.length > 0) {
-      setQuestions(parsed);
-      setShowErrorPopup(false); // Close error popup if the input becomes valid
-    } else {
-      setQuestions([]);
-      setShowErrorPopup(true); // Show error popup if input is invalid
-    }
   };
 
   // Handle version generation
   const handleGenerate = () => {
-    if (questions.length === 0) {
-      alert('Please input valid matching questions.');
+    const parsed = parseMatching(inputText);
+    if (parsed.length === 0) {
+      setShowErrorPopup(true);
       return;
     }
-    const generated = generateVersions(questions, versions);
+    setQuestions(parsed);
+    const generated = generateVersions(parsed, versions);
     setOutput(generated);
+    triggerNotification('success', 'Exam versions generated successfully!');
   };
 
   // Copy version to clipboard
   const copyToClipboard = (index) => {
     const version = formatOutput(output[index]);
     navigator.clipboard.writeText(version);
-    alert(`Version ${index + 1} copied to clipboard!`);
+    triggerNotification('success', `Version ${index + 1} copied to clipboard!`);
+  };
+
+  // Open Instructions Popup
+  const openInstructions = () => {
+    setShowInstructions(true);
+  };
+
+  // Close Instructions Popup
+  const closeInstructions = () => {
+    setShowInstructions(false);
   };
 
   return (
     <main className="bg-gray-100 min-h-screen p-8 flex flex-col items-center">
+      {/* Notification Card */}
+      {notification.show && (
+        <NotificationCard
+          status={notification.status}
+          message={notification.message}
+          onClose={() => setNotification({ show: false, status: '', message: '' })}
+        />
+      )}
+
+      {/* Instructions Button */}
+      <section className="w-full lg:w-3/4 mb-8 text-right">
+        <Button
+          variant="outlined"
+          startIcon={<InfoIcon />}
+          onClick={openInstructions}
+          className="text-darkBlue"
+        >
+          Instructions
+        </Button>
+      </section>
+
       {/* Input Section */}
       <section className="w-full lg:w-3/4 mb-8 text-center">
         <h1 className="text-3xl font-bold text-darkBlue mb-4">Matching Questions Generator</h1>
@@ -100,29 +137,6 @@ const Matching = () => {
           className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-darkBlue"
         />
       </section>
-
-      {/* Error Popup */}
-      {showErrorPopup && (
-        <section className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <img
-              src={imageInstruction}
-              alt="Input format explanation"
-              className="w-110 h-1000 mx-auto mb-4"
-            />
-            <p className="text-darkGray mb-4">
-              Please follow the correct input format: <br />
-              <strong>1. Question A. Answer</strong>
-            </p>
-            <button
-              onClick={() => setShowErrorPopup(false)}
-              className="px-4 py-2 bg-darkBlue text-white rounded-lg hover:bg-darkGreen"
-            >
-              Close
-            </button>
-          </div>
-        </section>
-      )}
 
       {/* Options Section */}
       <section className="w-full lg:w-3/4 flex justify-between items-center mb-8">
@@ -161,14 +175,59 @@ const Matching = () => {
                 value={formatOutput(version)}
                 className="w-full h-40 p-2 border border-gray-300 rounded-lg focus:outline-none"
               />
-              <button
+              <Button
                 onClick={() => copyToClipboard(index)}
-                className="mt-4 px-6 py-2 bg-darkBlue text-white rounded-lg hover:bg-darkGreen"
+                variant="contained"
+                startIcon={<CopyIcon />}
+                className="mt-4 bg-darkBlue hover:bg-darkGreen text-white"
               >
-                Copy Version {index + 1}
-              </button>
+                Copy to Clipboard
+              </Button>
             </div>
           ))}
+        </section>
+      )}
+
+      {/* Instructions Popup */}
+      <Dialog open={showInstructions} onClose={closeInstructions}>
+        <DialogTitle>How to Use the Matching Questions Generator</DialogTitle>
+        <DialogContent>
+          <ul className="list-disc pl-6">
+            <li>Input your questions in the format:</li>
+            <pre className="bg-gray-100 p-2 rounded-md my-2">
+              1. Question A. Answer{'\n'}2. Another Question B. Answer
+            </pre>
+            <li>Select the number of versions you want to generate.</li>
+            <li>Click "Generate Versions" to create multiple shuffled versions.</li>
+          </ul>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeInstructions} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Error Popup */}
+      {showErrorPopup && (
+        <section className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <img
+              src={imageInstruction}
+              alt="Input format explanation"
+              className="w-110 h-100 mx-auto mb-4"
+            />
+            <p className="text-darkGray mb-4">
+              Please follow the correct input format: <br />
+              <strong>1. Question A. Answer</strong>
+            </p>
+            <button
+              onClick={() => setShowErrorPopup(false)}
+              className="px-4 py-2 bg-darkBlue text-white rounded-lg hover:bg-darkGreen"
+            >
+              Close
+            </button>
+          </div>
         </section>
       )}
     </main>
