@@ -1,0 +1,65 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+:root {
+  --darkGreen: #006400;
+  --darkBlue: #003366;
+  --lightBlue: #add8e6;
+  --darkGray: #333333;
+}
+
+:root {
+    --darkBlue: #003366;
+    --lightBlue: #add8e6;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-700: #374151;
+    --white: #ffffff;
+  }
+  
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--darkGray);
+}
+:root {
+    --darkGreen: #006400;
+    --darkBlue: #003366;
+    --lightBlue: #add8e6;
+    --darkGray: #333333;
+    --white: #ffffff;
+  }
+  
+:root {
+    --darkGreen: #006400;
+    --darkBlue: #003366;
+    --lightBlue: #add8e6;
+    --darkGray: #333333;
+    --white: #ffffff;
+    --darkBlue: #003366;
+    --lightBlue: #add8e6;
+    --white: #ffffff;
+  }
+  
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--gray-50);
+    color: var(--darkGray);
+  }
+ 
+.bg-darkGreen { background-color: var(--darkGreen); background-color: #006400; }
+.bg-darkBlue { background-color: var(--darkBlue); background-color: #003366; }
+.bg-lightBlue { background-color: var(--lightBlue); background-color: #add8e6; }
+.text-darkBlue { color: var(--darkBlue); color: #003366; }
+.text-darkGray { color: var(--darkGray); color: #333333; }
+.hover\:text-lightBlue:hover, .focus\:text-lightBlue:focus { color: var(--lightBlue); color: #add8e6; }
+
+:root {
+    --darkBlue: #003366;
+    --lightBlue: #add8e6;
+    --white: #ffffff;
+  }
+  
