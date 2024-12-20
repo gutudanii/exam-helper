@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import NotificationCard from '../components/NotificationCard';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { ContentCopy as CopyIcon, Info as InfoIcon } from '@mui/icons-material';
-import imageInstruction from '../assets/code.webp'; // Replace with your actual image path
+import imageInstruction from './matching.png'; // Replace with your actual image path
 
 const Matching = () => {
   const [inputText, setInputText] = useState('');
